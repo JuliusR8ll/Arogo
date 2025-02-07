@@ -1,0 +1,10 @@
+pandas
+numpy
+scikit-learn
+joblib
+shap
+matplotlib
+seaborn
+fpdf
+google-generativeai
+python-dotenv
