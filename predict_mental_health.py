@@ -96,7 +96,7 @@ def predict_anxiety_severity():
     
     predicted_severity = label_encoder.inverse_transform(prediction)
     
-    print(f"Predicted Anxiety Severity: {predicted_severity[0]}")
+    print(f"Predicted Depresssion Severity: {predicted_severity[0]}")
 
     api_input = {
         "age": age,
