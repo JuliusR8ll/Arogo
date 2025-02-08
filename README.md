@@ -1,7 +1,12 @@
 # Mental Health Prediction Project
 # Demo: https://youtu.be/keqyCN9GIj0
+
 ## Overview
 This project aims to predict anxiety severity based on various mental health assessment data using machine learning techniques. The project consists of three main components: a Python script for prediction, a dataset containing mental health data, and a Jupyter notebook for exploratory data analysis and model training.
+
+## Usage:
+- Get your mental state prediction from answering some simple question.
+- Recieve a personalized pdf for you based on your reults.
 
 ## Files
 
@@ -14,19 +19,12 @@ This Python script is responsible for generating predictions of anxiety severity
 - Defines functions for generating PDFs and calling the Gemini API.
 - Implements a function to predict anxiety severity based on user input.
 
-#### Usage:
-To run the script, ensure that the required libraries are installed and the environment variables are set up correctly. Execute the script in a Python environment.
+
 
 ### 2. `depression_anxiety_data.csv`
 This CSV file contains the dataset used for training the machine learning model. It includes various features related to mental health assessments, such as age, gender, BMI, PHQ scores, and severity levels of depression and anxiety.
 
-#### Key Columns:
-- `age`: Age of the individual.
-- `gender`: Gender of the individual (male/female).
-- `bmi`: Body Mass Index.
-- `phq_score`: PHQ score indicating depression severity.
-- `gad_score`: GAD score indicating anxiety severity.
-- `anxiety_severity`: Categorical variable indicating the severity of anxiety.
+
 
 ### 3. `metal_health_model.ipynb`
 This Jupyter notebook is used for exploratory data analysis (EDA), data preprocessing, and training the machine learning model. It includes visualizations and model evaluation metrics.
@@ -48,3 +46,6 @@ Open the notebook in a Jupyter environment, run the cells sequentially, and foll
 
 ## Installation
 To set up the project, clone the repository and install the required libraries using pip:
+
+- Run command 'pip install requirements.txt'
+- Run command 'python predict_mental_health.ipynb'
