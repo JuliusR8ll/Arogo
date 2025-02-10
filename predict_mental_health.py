@@ -29,10 +29,8 @@ def generate_pdf(suggestions):
     suggestions = suggestions.replace('\u2019', "'")  # Replace right single quote with a regular quote
     suggestions = suggestions.replace('\u201c', '"')  # Replace left double quote with a regular quote
     suggestions = suggestions.replace('\u201d', '"')  # Replace right double quote with a regular quote
-    # Add more replacements as needed for other unsupported characters
 
-    # Directly use the suggestions string
-    pdf.multi_cell(0, 10, txt=suggestions)  # No need to join if suggestions is already a string
+    pdf.multi_cell(0, 10, txt=suggestions)  
 
     # Save the PDF to a file
     pdf_file_name = "suggestions.pdf"
@@ -66,9 +64,9 @@ Given the following mental health assessment data, generate a detailed yet empat
 
     response = model.generate_content(prompt)
     
-    suggestions = response.text  # This should be a single string
+    suggestions = response.text  
     
-    generate_pdf(suggestions)  # Pass the string directly
+    generate_pdf(suggestions) 
     return suggestions
 
 def predict_anxiety_severity():
@@ -94,9 +92,8 @@ def predict_anxiety_severity():
     
     prediction = depression_model.predict(input_data)
     
-    predicted_severity = label_encoder.inverse_transform(prediction)
     
-    print(f"Predicted Depresssion Severity: {predicted_severity[0]}")
+    print(f"Predicted Depresssion Severity: {prediction[0]}")
 
     api_input = {
         "age": age,
@@ -106,7 +103,7 @@ def predict_anxiety_severity():
         "anxiety_severity": anxiety_severity,
         "epworth_score": epworth_score,
         "gad_score": gad_score,
-        "predicted_severity": predicted_severity
+        "predicted_severity": prediction
     }
 
     # Call Gemini API
