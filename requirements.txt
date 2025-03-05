@@ -8,3 +8,4 @@ seaborn
 fpdf
 google-generativeai
 python-dotenv
+Flask

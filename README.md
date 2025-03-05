@@ -1,51 +1,67 @@
 # Mental Health Prediction Project
-# Demo: https://youtu.be/keqyCN9GIj0
 
 ## Overview
 This project aims to predict anxiety severity based on various mental health assessment data using machine learning techniques. The project consists of three main components: a Python script for prediction, a dataset containing mental health data, and a Jupyter notebook for exploratory data analysis and model training.
 
-## Usage:
-- Get your mental state prediction from answering some simple question.
-- Recieve a personalized pdf for you based on your reults.
+# Mental Health Prediction Project
 
-## Files
+## Overview
+This project aims to predict anxiety severity based on various mental health assessment data using machine learning techniques. The project consists of several components, including a Python script for prediction, a dataset containing mental health data, and a Jupyter notebook for exploratory data analysis and model training.
 
-### 1. `predict_mental_health.py`
-This Python script is responsible for generating predictions of anxiety severity based on user input. It utilizes a pre-trained Random Forest model to make predictions and generates a PDF report with suggestions based on the model's output.
+## Features
+- Predict anxiety severity based on user input.
+- Generate personalized PDF reports with suggestions.
+- Calculate PHQ and GAD scores.
+- Calculate Body Mass Index (BMI).
+- User-friendly web interface for data input.
 
-#### Key Features:
-- Loads environment variables for API keys.
-- Configures the Google Gemini API for generating suggestions.
-- Defines functions for generating PDFs and calling the Gemini API.
-- Implements a function to predict anxiety severity based on user input.
-
-
-
-### 2. `depression_anxiety_data.csv`
-This CSV file contains the dataset used for training the machine learning model. It includes various features related to mental health assessments, such as age, gender, BMI, PHQ scores, and severity levels of depression and anxiety.
-
-
-
-### 3. `metal_health_model.ipynb`
-This Jupyter notebook is used for exploratory data analysis (EDA), data preprocessing, and training the machine learning model. It includes visualizations and model evaluation metrics.
-
-#### Key Sections:
-- **Data Loading**: Loads the dataset from the CSV file.
-- **Data Cleaning**: Handles missing values and encodes categorical variables.
-- **Feature Scaling**: Standardizes numerical features for better model performance.
-- **Model Training**: Trains a Random Forest classifier on the processed data.
-- **Model Evaluation**: Evaluates the model's performance using confusion matrices and classification reports.
-- **SHAP Analysis**: Performs SHAP analysis to interpret the model's predictions.
-
-#### Usage:
-Open the notebook in a Jupyter environment, run the cells sequentially, and follow the instructions to train the model and make predictions.
-
-## Requirements
-- Python 3.x
-- Libraries: pandas, numpy, scikit-learn, joblib, shap, matplotlib, seaborn, fpdf, google-generativeai, dotenv
+## Dataset
+The dataset used for training the machine learning model can be found at:
+[Depression and Anxiety Data](https://www.kaggle.com/datasets/shahzadahmad0402/depression-and-anxiety-data)
 
 ## Installation
-To set up the project, clone the repository and install the required libraries using pip:
+To set up the project, follow these steps:
 
-- Run command 'pip install requirements.txt'
-- Run command 'python predict_mental_health.ipynb'
+1. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Configure the Gemini API key:
+   - Visit [Google AI Studio](https://aistudio.google.com/app/apikey) to create a new API key.
+   - Copy the API key and create a `.env` file in the root directory.
+   - Add your API key to the `.env` file:
+     ```
+     GOOGLE_API_KEY=your_google_api_key_here
+     ```
+
+## Usage
+1. **Run the application:**
+   ```bash
+   python predict_mental_health.py (make sure you have saved .pkl by running mental_health.ipynb script)
+   ```
+
+2. **Access the web application:**
+   Open your web browser and go to `http://127.0.0.1:5000/`.
+
+3. **Input your data:**
+   Fill out the form with your age, gender, BMI, PHQ score, anxiety severity, Epworth score, and GAD score.
+
+4. **Submit the form:**
+   Click the "Predict" button to receive your mental health prediction and suggestions.
+
+5. **Download suggestions:**
+   After receiving the suggestions, you can download them as a PDF.
+
+## Key Components
+- **predict_mental_health.py**: The main Python script responsible for handling predictions and generating reports.
+- **EDA.py**: Contains exploratory data analysis insights about the dataset.
+- **model.py**: Contains model training and evaluation logic.
+- **utlis.py**: Handles API calls and PDF generation.
+- **templates/**: Contains HTML templates for user input forms.
+
+## Additional Features
+- **PHQ Score Calculation**: A separate page to calculate the PHQ score based on user responses.
+- **GAD Score Calculation**: A separate page to calculate the GAD score based on user responses.
+- **BMI Calculator**: A separate page to calculate Body Mass Index (BMI) based on user input.
+

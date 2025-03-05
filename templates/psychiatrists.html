@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychiatrists</title>
+</head>
+<body>
+    <h1>Available Psychiatrists</h1>
+    <ul>
+        {% for psychiatrist in psychiatrists %}
+            <li>
+                <a href="{{ url_for('chat_with_psychiatrist', psychiatrist_id=psychiatrist.id) }}">
+                    {{ psychiatrist.username }}
+                </a>
+                <p>{{ psychiatrist.bio }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="/home">Back to Home</a>
+</body>
+</html>

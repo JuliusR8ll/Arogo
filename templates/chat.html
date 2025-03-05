@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Psychiatrist</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        #chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with Psychiatrist</h1>
+    <div id="chat-messages">
+        {% for message in messages %}
+            <div class="message">
+                <strong>{{ message.sender_id }}:</strong> {{ message.content }}
+                <small>({{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }})</small>
+            </div>
+        {% endfor %}
+    </div>
+    <form id="message-form">
+        <textarea id="message" required></textarea><br>
+        <button type="submit">Send</button>
+    </form>
+    <a href="/psychiatrists">Back to Psychiatrists</a>
+
+    <script>
+        const socket = io();
+        const psychiatristId = "{{ psychiatrist_id }}";
+        
+        // Join the chat room
+        socket.emit('join', {psychiatrist_id: parseInt(psychiatristId)});
+        
+        // Handle incoming messages
+        socket.on('message', function(data) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<strong>${data.sender}:</strong> ${data.message} <small>(${data.timestamp})</small>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+        
+        // Handle form submission
+        document.getElementById('message-form').onsubmit = function(e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+            
+            if (message.trim()) {
+                socket.emit('message', {
+                    message: message,
+                    psychiatrist_id: parseInt(psychiatristId)
+                });
+                messageInput.value = '';
+            }
+        };
+    </script>
+</body>
+</html>
