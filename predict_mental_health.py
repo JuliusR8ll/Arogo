@@ -9,21 +9,20 @@ import bcrypt
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a random secret key
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'  # Use SQLite for simplicity
+app.secret_key = 'your_secret_key'  
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# Initialize SocketIO
+# for chat box
 socketio = SocketIO(app)
 
-# User model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.LargeBinary, nullable=False)  # Store as LargeBinary for hashed password
-    role = db.Column(db.String(50), nullable=False)  # 'tester' or 'psychiatrist'
+    password = db.Column(db.LargeBinary, nullable=False)   
+    role = db.Column(db.String(50), nullable=False)  
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,11 +30,14 @@ class Message(db.Model):
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
 
 class Psychiatrist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    bio = db.Column(db.Text, nullable=True)  # Optional bio for the psychiatrist
+    bio = db.Column(db.Text, nullable=True)  
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -43,7 +45,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home_redirect():
-    return redirect(url_for('login'))  # Always redirect to login page
+    return redirect(url_for('login'))  
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -54,17 +56,17 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
             login_user(user)
-            return redirect(url_for('home'))  # Redirect to the home page after login
+            return redirect(url_for('home'))  
         else:
             return "Invalid username or password. Please try again."
 
-    return render_template('login.html')  # Render the login page
+    return render_template('login.html')  
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))  # Redirect to login after logout
+    return redirect(url_for('login'))  
 
 @socketio.on('join')
 def on_join(data):
@@ -77,16 +79,26 @@ def handle_message(data):
     room = f"chat_{data['psychiatrist_id']}"
     message = data['message']
     
-    # Save message to database
+    # See who's logged in
+    if current_user.role == 'psychiatrist':
+        last_message = Message.query.filter(
+            (Message.sender_id != current_user.id) &
+            ((Message.sender_id == current_user.id) | (Message.receiver_id == current_user.id))
+        ).order_by(Message.timestamp.desc()).first()
+        
+        receiver_id = last_message.sender_id if last_message else data.get('receiver_id')
+    else:
+        receiver_id = data['psychiatrist_id']
+    
+    # Save messages
     new_message = Message(
         sender_id=current_user.id,
-        receiver_id=data['psychiatrist_id'],
+        receiver_id=receiver_id,
         content=message
     )
     db.session.add(new_message)
     db.session.commit()
     
-    # Emit message to room
     emit('message', {
         'sender': current_user.username,
         'message': message,
@@ -96,21 +108,38 @@ def handle_message(data):
 @app.route('/chat/<int:psychiatrist_id>')
 @login_required
 def chat(psychiatrist_id):
+    psychiatrist = User.query.get_or_404(psychiatrist_id)
+    
+    # Chat box between the current user and psychiatrist
     messages = Message.query.filter(
-        (Message.sender_id == current_user.id) | (Message.receiver_id == current_user.id)
-    ).filter(
-        (Message.sender_id == psychiatrist_id) | (Message.receiver_id == psychiatrist_id)
-    ).all()
+        ((Message.sender_id == current_user.id) & (Message.receiver_id == psychiatrist_id)) |
+        ((Message.sender_id == psychiatrist_id) & (Message.receiver_id == current_user.id))
+    ).order_by(Message.timestamp).all()
     
     return render_template('chat.html', 
                          user=current_user, 
+                         psychiatrist=psychiatrist,
                          messages=messages, 
                          psychiatrist_id=psychiatrist_id)
 
 @app.route('/home')
-@login_required  # Ensure that only logged-in users can access this route
+@login_required
 def home():
-    return render_template('index.html', user=current_user)  # Pass the current user to the template
+    if current_user.role == 'psychiatrist':
+        messages = Message.query.filter(
+            (Message.sender_id == current_user.id) | 
+            (Message.receiver_id == current_user.id)
+        ).order_by(Message.timestamp).all()
+    else:
+        messages = Message.query.filter_by(sender_id=current_user.id).all()
+    
+    chat_partner_id = request.args.get('chat_with', None)
+    
+    return render_template('index.html', 
+                         user=current_user, 
+                         messages=messages,
+                         psychiatrist_id=current_user.id if current_user.role == 'psychiatrist' else None,
+                         chat_with=chat_partner_id)
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -144,12 +173,11 @@ def predict():
         "predicted_severity": prediction.tolist() 
     }
 
-    # Call Gemini API to get suggestions
+    # Call Gemini API for suggestions
     suggestions = call_gemini_api(api_input)
     if not suggestions:
         return "No suggestions returned from the API."
 
-    # Generate PDF
     pdf = generate_pdf(suggestions)
     if pdf is None:
         return "Failed to generate PDF."
@@ -157,7 +185,7 @@ def predict():
     pdf_io = io.BytesIO(pdf)
     pdf_io.seek(0)
 
-    # Send the PDF as a response
+    # Send response as pdf
     return send_file(pdf_io, as_attachment=True, download_name='suggestions.pdf', mimetype='application/pdf')
 
 @app.route('/calculate_gad', methods=['POST'])
@@ -266,34 +294,32 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        role = request.form['role']  # 'tester' or 'psychiatrist'
+        role = request.form['role'] 
 
-        # Check if the username already exists
+        # See if the username already exists
         if User.query.filter_by(username=username).first():
             return "Username already exists. Please choose a different one."
 
-        # Hash the password
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-        # Create a new user
         new_user = User(username=username, password=hashed_password, role=role)
         db.session.add(new_user)
         db.session.commit()
 
-        # If the user is a psychiatrist, create a psychiatrist profile
         if role == 'psychiatrist':
             new_psychiatrist = Psychiatrist(username=username)
             db.session.add(new_psychiatrist)
             db.session.commit()
 
-        return redirect(url_for('login'))  # Redirect to login after registration
+        return redirect(url_for('login')) 
 
     return render_template('register.html')
 
 @app.route('/psychiatrists')
 @login_required
 def psychiatrists():
-    all_psychiatrists = Psychiatrist.query.all()
+    # Show all psychiatrists
+    all_psychiatrists = User.query.filter_by(role='psychiatrist').all()
     return render_template('psychiatrists.html', psychiatrists=all_psychiatrists)
 
 @app.route('/chat/<int:psychiatrist_id>', methods=['GET', 'POST'])
@@ -301,13 +327,13 @@ def psychiatrists():
 def chat_with_psychiatrist(psychiatrist_id):
     if request.method == 'POST':
         message = request.form['message']
-        # Save message to the database
+        # Save messages
         new_message = Message(sender_id=current_user.id, receiver_id=psychiatrist_id, content=message)
         db.session.add(new_message)
         db.session.commit()
         return redirect(url_for('chat_with_psychiatrist', psychiatrist_id=psychiatrist_id))
 
-    # Retrieve messages for the chat
+    # Retrieve messages 
     messages = Message.query.filter(
         (Message.sender_id == current_user.id) | (Message.receiver_id == current_user.id)
     ).filter(
@@ -317,5 +343,6 @@ def chat_with_psychiatrist(psychiatrist_id):
     return render_template('chat.html', user=current_user, messages=messages, psychiatrist_id=psychiatrist_id)
 
 if __name__ == '__main__':
-    db.create_all()  # Create database tables
-    socketio.run(app, debug=True)
+    with app.app_context():
+        db.create_all()
+    socketio.run(app,debug=True)

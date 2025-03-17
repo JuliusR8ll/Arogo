@@ -4,57 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Health Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
-    <h1>Mental Health Prediction</h1>
-    <form action="/predict" method="post">
-        <label for="age">Age:</label>
-        <input type="number" name="age" required><br>
-        
-        <label for="gender">Gender:</label>
-        <select name="gender" required>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </select><br>
-        
-        <label for="bmi">BMI:</label>
-        <input type="number" step="0.1" name="bmi" required><a href="/bmi_calculator" target="_blank" rel="noopener noreferrer">Calculate your BMI here</a><br>
-        
-        <label for="phq_score">PHQ Score:</label>
-        <input type="number" name="phq_score" required>
-        <a href="/phq_score" target="_blank" rel="noopener noreferrer">
-            Calculate your PHQ score here
-        </a><br>
-        
-        <label for="anxiety_severity">Anxiety Severity:</label>
-<select name="anxiety_severity" required>
-    <option value="0">0 - None</option>
-    <option value="1">1 - None-minimal</option>
-    <option value="2">2 - Mild</option>
-    <option value="3">3 - Moderate</option>
-    <option value="4">4 - Severe</option>
-</select>
-<br>
-        
-        <label for="epworth_score">Epworth Score:</label>
-        <input type="number" name="epworth_score" required><a href="/epworth_score" target="_blank" rel="noopener noreferrer">
-            Calculate your GAD score here
-        </a><br>
-        
-        <label for="gad_score">GAD Score:</label>
-<input type="number" name="gad_score" required>
-<a href="/gad_score" target="_blank" rel="noopener noreferrer">
-    Calculate your GAD score here
-</a><br>
-        
-        <input type="submit" value="Predict">
-    </form>
+    <div class="header">
+        <h1>Mental Health Prediction</h1>
+    </div>
+    
+    <div class="container">
+        {% if user.role == 'tester' %}
+            <div class="chat-container">
+                <div class="form-section">
+                    <div class="form-container">
+                        <h2>Mental Health Assessment</h2>
+                        <form action="/predict" method="post">
+                            <div class="form-group">
+                                <label for="age">Age:</label>
+                                <input type="number" name="age" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="gender">Gender:</label>
+                                <select name="gender" required>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bmi">BMI:</label>
+                                <input type="number" step="0.1" name="bmi" required>
+                                <a href="/bmi_calculator" target="_blank" rel="noopener noreferrer">Calculate your BMI here</a>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phq_score">PHQ Score:</label>
+                                <input type="number" name="phq_score" required>
+                                <a href="/phq_score" target="_blank" rel="noopener noreferrer">Calculate your PHQ score here</a>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="anxiety_severity">Anxiety Severity:</label>
+                                <select name="anxiety_severity" required>
+                                    <option value="0">0 - None</option>
+                                    <option value="1">1 - None-minimal</option>
+                                    <option value="2">2 - Mild</option>
+                                    <option value="3">3 - Moderate</option>
+                                    <option value="4">4 - Severe</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="epworth_score">Epworth Score:</label>
+                                <input type="number" name="epworth_score" required>
+                                <a href="/epworth_score" target="_blank" rel="noopener noreferrer">Calculate your Epworth score here</a>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="gad_score">GAD Score:</label>
+                                <input type="number" name="gad_score" required>
+                                <a href="/gad_score" target="_blank" rel="noopener noreferrer">Calculate your GAD score here</a>
+                            </div>
+                            
+                            <button type="submit">Predict</button>
+                        </form>
+                    </div>
+                </div>
 
-    {% if suggestions %}
-        <h2>Suggestions:</h2>
-        <p>{{ suggestions }}</p>
-    {% endif %}
+                <div class="chat-section">
+                    <h2>Chat with Psychiatrists</h2>
+                    <p>Please <a href="{{ url_for('psychiatrists') }}" class="chat-button">select a psychiatrist</a> to start chatting.</p>
+                    {% if psychiatrist_id %}
+                        <div id="chat-messages">
+                            {% for message in messages %}
+                                <div class="message">
+                                    <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                                    <small>({{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }})</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <form id="message-form">
+                            <textarea id="message" required placeholder="Type your message here..."></textarea>
+                            <button type="submit">Send</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
 
-    <a href="/chat" target="_blank" rel="noopener noreferrer">Chat with Suggestions</a><br>
+        {% elif user.role == 'psychiatrist' %}
+            <div class="chat-section">
+                <h2>Your Messages</h2>
+                <div id="chat-messages">
+                    {% for message in messages %}
+                        <div class="message">
+                            <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                            <small>({{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }})</small>
+                        </div>
+                    {% endfor %}
+                </div>
+                <form id="message-form">
+                    <textarea id="message" required placeholder="Type your message here..."></textarea>
+                    <input type="hidden" id="current-user-id" value="{{ user.id }}">
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const socket = io();
+        const psychiatristId = "{{ psychiatrist_id }}";
+        const currentUserId = "{{ user.id }}";
+        const ispsychiatrist = "{{ user.role }}" === "psychiatrist";
+        
+        if (psychiatristId) {
+            socket.emit('join', {psychiatrist_id: parseInt(psychiatristId)});
+        }
+        
+        // show incoming messages
+        socket.on('message', function(data) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<strong>${data.sender}:</strong> ${data.message} <small>(${data.timestamp})</small>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+        
+        // form submission
+        document.getElementById('message-form').onsubmit = function(e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+            
+            if (message.trim()) {
+                const messageData = {
+                    message: message,
+                    psychiatrist_id: ispsychiatrist ? currentUserId : parseInt(psychiatristId)
+                };
+                socket.emit('message', messageData);
+                messageInput.value = '';
+            }
+        };
+    </script>
 </body>
 </html> 

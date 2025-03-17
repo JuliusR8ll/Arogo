@@ -4,83 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHQ Score Calculation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>PHQ Score Calculation</h1>
-    <form action="/calculate_phq" method="post">
-        <label for="phq_1">Little interest or pleasure in doing things?</label>
-        <select name="phq_1" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+    <div class="header">
+        <h1>PHQ Score Calculation</h1>
+    </div>
+    
+    <div class="container">
+        <div class="form-container">
+            <form action="/calculate_phq" method="post">
+                <div class="form-group">
+                    <label for="phq_1">Little interest or pleasure in doing things?</label>
+                    <select name="phq_1" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_2">Feeling down, depressed, or hopeless?</label>
-        <select name="phq_2" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_2">Feeling down, depressed, or hopeless?</label>
+                    <select name="phq_2" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_3">Trouble falling or staying asleep, or sleeping too much?</label>
-        <select name="phq_3" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_3">Trouble falling or staying asleep, or sleeping too much?</label>
+                    <select name="phq_3" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_4">Feeling tired or having little energy?</label>
-        <select name="phq_4" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_4">Feeling tired or having little energy?</label>
+                    <select name="phq_4" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_5">Poor appetite or overeating?</label>
-        <select name="phq_5" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_5">Poor appetite or overeating?</label>
+                    <select name="phq_5" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_6">Feeling bad about yourself — or that you are a failure or have let yourself or your family down?</label>
-        <select name="phq_6" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_6">Feeling bad about yourself — or that you are a failure or have let yourself or your family down?</label>
+                    <select name="phq_6" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_7">Trouble concentrating on things, such as reading the newspaper or watching television?</label>
-        <select name="phq_7" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_7">Trouble concentrating on things, such as reading the newspaper or watching television?</label>
+                    <select name="phq_7" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_8">Moving or speaking so slowly that other people could have noticed? Or so fidgety or restless that you have been moving a lot more than usual?</label>
-        <select name="phq_8" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_8">Moving or speaking so slowly that other people could have noticed? Or so fidgety or restless that you have been moving a lot more than usual?</label>
+                    <select name="phq_8" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <label for="phq_9">Thoughts that you would be better off dead, or thoughts of hurting yourself in some way?</label>
-        <select name="phq_9" required>
-            <option value="Not at all">Not at all</option>
-            <option value="Several days">Several days</option>
-            <option value="More than half the days">More than half the days</option>
-            <option value="Nearly every day">Nearly every day</option>
-        </select><br>
+                <div class="form-group">
+                    <label for="phq_9">Thoughts that you would be better off dead, or thoughts of hurting yourself in some way?</label>
+                    <select name="phq_9" required>
+                        <option value="Not at all">Not at all</option>
+                        <option value="Several days">Several days</option>
+                        <option value="More than half the days">More than half the days</option>
+                        <option value="Nearly every day">Nearly every day</option>
+                    </select>
+                </div>
 
-        <input type="submit" value="Calculate PHQ Score">
-    </form>
+                <button type="submit">Calculate PHQ Score</button>
+            </form>
+            
+            <div class="nav-links">
+                <p><a href="{{ url_for('home') }}">Back to Home</a></p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
